@@ -7,16 +7,14 @@ require "utusemi/version"
 Gem::Specification.new do |s|
   s.name        = "utusemi"
   s.version     = Utusemi::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
+  s.authors     = ['YOSHIDA Hiroki']
+  s.email       = ['hyoshida@appirits.com']
+  s.homepage    = 'https://github.com/hyoshida/utusemi#utusemi'
   s.summary     = "TODO: Summary of Utusemi."
   s.description = "TODO: Description of Utusemi."
   s.license     = "MIT"
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency "rails", "~> 4.1.2"
-
-  s.add_development_dependency "pg"
 end
