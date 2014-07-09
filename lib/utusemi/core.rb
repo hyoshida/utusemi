@@ -74,6 +74,7 @@ module Utusemi
           define_getter_method(column_name)
           define_setter_method(column_name)
           define_predicate_method(column_name)
+          define_was_method(column_name)
         end
       end
 
@@ -99,6 +100,11 @@ module Utusemi
       def define_predicate_method(column_name)
         target_column_name = mapped_utusemi_column_name(column_name)
         define_singleton_method("#{column_name}?") { send "#{target_column_name}?" }
+      end
+
+      def define_was_method(column_name)
+        target_column_name = mapped_utusemi_column_name(column_name)
+        define_singleton_method("#{column_name}_was") { send "#{target_column_name}_was" }
       end
     end
 
