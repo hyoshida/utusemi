@@ -110,6 +110,14 @@ module Utusemi
         target_column_name = mapped_utusemi_column_name(column_name)
         define_singleton_method("#{column_name}_was") { send "#{target_column_name}_was" }
       end
+
+      def utusemi_for_association(name, association, options = {})
+        utusemi_values = self.utusemi_values
+        utusemi_values = self.class.utusemi_values unless utusemi_values[:flag]
+        utusemi_flag = utusemi_values[:flag] || options[:force]
+        return association unless utusemi_flag
+        association.utusemi!(name.to_s.singularize, utusemi_values[:options])
+      end
     end
 
     # 用途
@@ -319,14 +327,10 @@ module Utusemi
         def define_utusemi_association_reader(name, options = {})
           return if method_defined?("#{name}_with_utusemi")
           define_method "#{name}_with_utusemi" do |*args|
-            utusemi_association = send("#{name}_without_utusemi", *args)
-            return unless utusemi_association
-            return utusemi_association unless utusemi_association.is_a? ActiveRecord::Base
-            utusemi_values = self.utusemi_values
-            utusemi_values = self.class.utusemi_values unless utusemi_values[:flag]
-            utusemi_flag = utusemi_values[:flag] || options[:force]
-            return utusemi_association unless utusemi_flag
-            utusemi_association.utusemi!(name.to_s.singularize, utusemi_values[:options])
+            association = send("#{name}_without_utusemi", *args)
+            return unless association
+            return association unless association.is_a? ActiveRecord::Base
+            utusemi_for_association(name, association, options)
           end
           alias_method_chain name, :utusemi
         end
