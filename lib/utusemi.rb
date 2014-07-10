@@ -1,9 +1,4 @@
-# load Rails/Railtie
-begin
-  require 'rails'
-rescue LoadError
-  #do nothing
-end
+require 'rails'
 
 require 'utusemi/definition'
 require 'utusemi/configuration'

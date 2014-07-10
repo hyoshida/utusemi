@@ -11,6 +11,8 @@ module Utusemi
       define_method(method) { @options[method.to_sym] }
     end
 
+    attr_reader :attributes
+
     def initialize(options = {})
       @attributes = {}
       @options = options
@@ -21,18 +23,14 @@ module Utusemi
       self
     end
 
-    def attributes
-      @attributes
-    end
-
     def method_missing(name, *args)
       add_attribute(name, *args)
     end
 
     private
 
-    def add_attribute(name, value = nil, &block)
-      raise AttributeDefinitionError, 'Block given' if block_given?
+    def add_attribute(name, value = nil)
+      fail AttributeDefinitionError, 'Block given' if block_given?
       @attributes[name.to_sym] = value.to_sym
     end
   end
