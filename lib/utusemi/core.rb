@@ -118,6 +118,8 @@ module Utusemi
     #
     module ActiveRecord
       module Querying
+        include Base
+
         case Rails::VERSION::MAJOR
         when 4
           delegate :utusemi, to: :all
@@ -208,6 +210,8 @@ module Utusemi
         #   #=> true (= products.title)
         #
         def to_a
+          utusemi_values = self.utusemi_values
+          utusemi_values = @klass.utusemi_values unless utusemi_values[:flag]
           return super unless utusemi_values[:flag]
           super.each { |record| record.utusemi!(utusemi_values[:type], utusemi_values[:options]) }
         end
@@ -231,6 +235,7 @@ module Utusemi
             current_scope = self.class.scoped
           end
           utusemi_values = current_scope.try(:utusemi_values) || {}
+          utusemi_values = self.class.utusemi_values unless utusemi_values[:flag]
           utusemi!(utusemi_values[:type], utusemi_values[:options]) if utusemi_values[:flag]
           super
         end
@@ -303,6 +308,8 @@ module Utusemi
             utusemi_association = send("#{name}_without_utusemi", *args)
             return unless utusemi_association
             return utusemi_association unless utusemi_association.is_a? ActiveRecord::Base
+            utusemi_values = self.utusemi_values
+            utusemi_values = self.class.utusemi_values unless utusemi_values[:flag]
             utusemi_flag = utusemi_values[:flag] || options[:force]
             return utusemi_association unless utusemi_flag
             utusemi_association.utusemi!(name.to_s.singularize, utusemi_values[:options])
