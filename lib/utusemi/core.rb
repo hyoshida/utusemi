@@ -7,6 +7,12 @@ module Utusemi
     #   モデル向けカラムマッパ => Utusemi::Core::ActiveRecord
     #   インスタンス向けカラムマッパ => Utusemi::Core::InstanceMethods
     #
+    # 備考
+    #   utusemiメソッドの第２引数は、任意のオプションをHashで指定する。
+    #   ただしoptions[:times]は予約済みで、指定した回数分だけmapメソッドを
+    #   繰り返し、options[:index]にイテレート中のカウントを返す。
+    #   また、その結果から複数のwhere条件を構築する。
+    #
     module Base
       def utusemi_values
         @utusemi_values ||= {}
@@ -26,16 +32,16 @@ module Utusemi
 
       private
 
-      def utusemi_column_names
-        Utusemi.config.map(utusemi_values[:type], utusemi_values[:options]).attributes
+      def utusemi_column_names(index = nil)
+        Utusemi.config.map(utusemi_values[:type], utusemi_values[:options].merge(index: index)).attributes
       end
 
-      def mapped_utusemi_column_name(column_name)
-        utusemi_column_names[column_name.to_sym] || column_name
+      def mapped_utusemi_column_name(column_name, index = nil)
+        utusemi_column_names(index)[column_name.to_sym] || column_name
       end
 
-      def unmapped_utusemi_column_name(column_name)
-        utusemi_column_names.invert[column_name.to_sym] || column_name
+      def unmapped_utusemi_column_name(column_name, index = nil)
+        utusemi_column_names(index).invert[column_name.to_sym] || column_name
       end
 
       def eigenclass
@@ -136,8 +142,17 @@ module Utusemi
         end
 
         def build_where(opts = :chain, *rest)
-          opts = opts_with_mapped_utusemi_column_name(opts) if utusemi_values[:flag]
-          super
+          return super unless utusemi_values[:flag]
+          if utusemi_values[:options][:times]
+            opts_wtihout_mapped = opts
+            1.upto(utusemi_values[:options][:times]).map do |index|
+              opts = opts_with_mapped_utusemi_column_name(opts_wtihout_mapped, index)
+              super
+            end
+          else
+            opts = opts_with_mapped_utusemi_column_name(opts)
+            super
+          end
         end
 
         def order(opts = nil, *rest)
@@ -147,20 +162,20 @@ module Utusemi
 
         private
 
-        def opts_with_mapped_utusemi_column_name(opts)
+        def opts_with_mapped_utusemi_column_name(opts, index = nil)
           case opts
           when Hash
-            key_values = opts.map { |key, value| [mapped_utusemi_column_name(key.to_s), value] }.flatten(1)
+            key_values = opts.map { |key, value| [mapped_utusemi_column_name(key.to_s, index), value] }.flatten(1)
             Hash[*key_values]
           when String, Symbol
-            mapped_utusemi_column_names_for_string(opts.to_s)
+            mapped_utusemi_column_names_for_string(opts.to_s, index)
           else
             opts
           end
         end
 
-        def mapped_utusemi_column_names_for_string(string)
-          utusemi_column_names.each do |old_column_name, new_column_name|
+        def mapped_utusemi_column_names_for_string(string, index = nil)
+          utusemi_column_names(index).each do |old_column_name, new_column_name|
             string.gsub!(/\b#{old_column_name}\b/, new_column_name.to_s)
           end
           string
