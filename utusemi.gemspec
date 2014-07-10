@@ -20,4 +20,6 @@ Gem::Specification.new do |s|
   s.add_dependency "railties", ">= 3.2.0"
 
   s.add_development_dependency "pg"
+  s.add_development_dependency "rspec-rails"
+  s.add_development_dependency "factory_girl_rails"
 end
