@@ -12,7 +12,3 @@ gemspec
 
 # To use debugger
 # gem 'debugger'
-
-group :development, :test do
-  gem 'pg'
-end
