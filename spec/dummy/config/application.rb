@@ -1,10 +1,10 @@
 require File.expand_path('../boot', __FILE__)
 
 # Pick the frameworks you want:
-require "active_record/railtie"
+require 'active_record/railtie'
 
 Bundler.require(*Rails.groups)
-require "utusemi"
+require 'utusemi'
 
 module Dummy
   class Application < Rails::Application
