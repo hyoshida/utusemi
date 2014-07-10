@@ -1,0 +1,22 @@
+# C: Line is too long.
+LineLength:
+  Enabled: false
+
+# C: Missing top-level class documentation comment.
+Documentation:
+  Enabled: false
+
+# C: Use only ascii symbols in comments.
+AsciiComments:
+  Enabled: false
+
+# C: Rename <from> to <to>.
+PredicateName:
+  Exclude:
+    - lib/utusemi/core.rb
+
+# Ignore files.
+AllCops:
+  Exclude:
+    - vendor/**/*
+    - spec/dummy/db/schema.rb
