@@ -33,7 +33,10 @@ module Utusemi
       private
 
       def utusemi_column_names(index = nil)
-        Utusemi.config.map(utusemi_values[:type], utusemi_values[:options].merge(index: index)).attributes
+        return {} unless utusemi_values[:flag]
+        options = utusemi_values[:options] || {}
+        options.update(index: index)
+        Utusemi.config.map(utusemi_values[:type], options).attributes
       end
 
       def mapped_utusemi_column_name(column_name, index = nil)
