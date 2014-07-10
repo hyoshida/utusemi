@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ['YOSHIDA Hiroki']
   s.email       = ['hyoshida@appirits.com']
   s.homepage    = 'https://github.com/hyoshida/utusemi#utusemi'
-  s.summary     = 'TODO: Summary of Utusemi.'
-  s.description = 'TODO: Description of Utusemi.'
+  s.summary     = 'Providing a flexible alias for column names in ActiveRecord.'
+  s.description = 'Providing a flexible alias for column names in ActiveRecord.'
   s.license     = 'MIT'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
