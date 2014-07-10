@@ -86,9 +86,7 @@ module Utusemi
 
       def changed
         return super unless utusemi_values[:flag]
-        super + super
-          .map { |column_name| unmapped_utusemi_column_name(column_name) }
-          .select { |column_name| utusemi_column_names[column_name.to_sym] }
+        super + super.map { |column_name| unmapped_utusemi_column_name(column_name).to_s }
       end
 
       private
