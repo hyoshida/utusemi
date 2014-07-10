@@ -142,37 +142,38 @@ module Utusemi
         def build_where(opts = :chain, *rest)
           return super unless utusemi_values[:flag]
           if utusemi_values[:options][:times]
-            opts_wtihout_mapped = opts
-            1.upto(utusemi_values[:options][:times]).map do |index|
-              opts = opts_with_mapped_utusemi_column_name(opts_wtihout_mapped, index)
-              super
-            end
+            opts_with_times(opts, utusemi_values[:options][:times]) { |opts_with_mapped| super(opts_with_mapped, *rest) }
           else
-            opts = opts_with_mapped_utusemi_column_name(opts)
-            super
+            super(opts_with_mapped_column_name(opts), *rest)
           end
         end
 
         def order(opts = nil, *rest)
-          opts = opts_with_mapped_utusemi_column_name(opts) if utusemi_values[:flag]
+          opts = opts_with_mapped_column_name(opts) if utusemi_values[:flag]
           super
         end
 
         private
 
-        def opts_with_mapped_utusemi_column_name(opts, index = nil)
+        def opts_with_times(opts, times)
+          1.upto(times).map do |index|
+            yield opts_with_mapped_column_name(opts, index)
+          end
+        end
+
+        def opts_with_mapped_column_name(opts, index = nil)
           case opts
           when Hash
             key_values = opts.map { |key, value| [mapped_utusemi_column_name(key.to_s, index), value] }.flatten(1)
             Hash[*key_values]
           when String, Symbol
-            mapped_utusemi_column_names_for_string(opts.to_s, index)
+            mapped_column_names_for_string(opts.to_s, index)
           else
             opts
           end
         end
 
-        def mapped_utusemi_column_names_for_string(string, index = nil)
+        def mapped_column_names_for_string(string, index = nil)
           utusemi_column_names(index).each do |old_column_name, new_column_name|
             string.gsub!(/\b#{old_column_name}\b/, new_column_name.to_s)
           end
