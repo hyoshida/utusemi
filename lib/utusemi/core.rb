@@ -274,6 +274,17 @@ module Utusemi
           @utusemi_values = original_obj.utusemi_values.dup
           super
         end
+
+        # 用途
+        #   association_cacheの影響でAssociation#ownerでclone前のインスタンスしか取得できないため
+        #   別経路から実際の呼び出し元インスタンスを参照できるようにし、utusemi_valuesを取り出せるようにする
+        def association(name)
+          truthly_owner = self
+          association = super
+          eigenclass = class << association; self; end
+          eigenclass.send(:define_method, :truthly_owner) { truthly_owner }
+          association
+        end
       end
 
       # 用途
@@ -290,13 +301,13 @@ module Utusemi
       #
       module Associations
         def scope(*args)
-          utusemi_values = owner.utusemi_values
+          utusemi_values = truthly_owner.utusemi_values
           return super unless utusemi_values[:flag]
           super.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options])
         end
 
         def load_target(*args)
-          utusemi_values = owner.utusemi_values
+          utusemi_values = truthly_owner.utusemi_values
           return super unless utusemi_values[:flag]
           super.each { |record| record.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options]) }
         end
