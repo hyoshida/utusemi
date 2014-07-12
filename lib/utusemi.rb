@@ -29,6 +29,7 @@ module Utusemi
     end
 
     def include_to_activerecord_base
+      # TODO: Organize name spaces
       ActiveRecord::Base.send(:include, Core::InstanceMethods)
     end
 
