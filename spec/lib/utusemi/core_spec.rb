@@ -35,4 +35,19 @@ describe Utusemi::Core do
       it { expect(subject.units).to eq(subject.quantity) }
     end
   end
+
+  describe ActiveRecord::Base::ClassMethods do
+    describe '::utusemi!' do
+      before { class TemporaryModel < ActiveRecord::Base; end }
+      before { subject.utusemi! }
+      subject { TemporaryModel }
+      it { expect(subject.utusemi_values).not_to be_empty }
+    end
+
+    describe '::utusemi' do
+      before { subject.utusemi }
+      subject { Product }
+      it { expect(subject.utusemi_values).to be_empty }
+    end
+  end
 end

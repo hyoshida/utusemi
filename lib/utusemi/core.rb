@@ -132,19 +132,21 @@ module Utusemi
     #   #=> [<products.titleが"test"であるレコード>]
     #
     module ActiveRecord
-      module Querying
-        include Base
+      module Base
+        module ClassMethods
+          include Utusemi::Core::Base
 
-        case Rails::VERSION::MAJOR
-        when 4
-          delegate :utusemi, to: :all
-        when 3
-          delegate :utusemi, to: :scoped
+          case Rails::VERSION::MAJOR
+          when 4
+            delegate :utusemi, to: :all
+          when 3
+            delegate :utusemi, to: :scoped
+          end
         end
       end
 
       module QueryMethods
-        include Base
+        include Utusemi::Core::Base
 
         def utusemi!(obj = nil, options = {})
           super.tap { warning_checker unless Rails.env.production? }
