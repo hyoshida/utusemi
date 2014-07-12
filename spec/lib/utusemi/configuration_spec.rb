@@ -25,7 +25,7 @@ describe Utusemi::Configuration do
   end
 
   context 'association models' do
-    let(:product) { FactoryGirl.create(:product, :with_stock) }
+    let(:product) { FactoryGirl.build(:product, :with_stock) }
 
     before do
       Utusemi.configure do
@@ -56,13 +56,11 @@ describe Utusemi::Configuration do
           #   map(:stock) { ... }
           #   product.utusemi.stocks.first
           #
-          subject { product_with_utusemi.reload.stocks.first }
+          subject { product_with_utusemi.stocks.first }
           it { should respond_to(:units) }
           it { should respond_to(:quantity) }
           it { expect(subject.units).to eq(subject.quantity) }
         end
-
-        # TODO: add case FactoryGirl#build and utusemi without reload
       end
     end
   end

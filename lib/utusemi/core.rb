@@ -284,6 +284,12 @@ module Utusemi
           return super unless utusemi_values[:flag]
           super.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options])
         end
+
+        def load_target(*args)
+          utusemi_values = owner.utusemi_values
+          return super unless utusemi_values[:flag]
+          super.each { |record| record.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options]) }
+        end
       end
 
       module AssociationMethods
