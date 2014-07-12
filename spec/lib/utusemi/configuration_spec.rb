@@ -13,13 +13,18 @@ describe Utusemi::Configuration do
   subject { Product }
   it { should respond_to(:utusemi) }
 
-  describe 'ActiveRecord::Base#utusemi' do
+  # TODO: Implement the new syntax
+  #
+  #   map(:product) { ... }
+  #   Product.utusemi.first
+  #
+  describe '#utusemi(type)' do
     subject { product.utusemi(:sample) }
     it { should respond_to(:title) }
     it { should respond_to(:name) }
   end
 
-  describe 'ActiveRecord::Base#utusemi with options' do
+  describe '#utusemi(type, options)' do
     subject { product.utusemi(:sample, caption: :title) }
     it { expect(subject.caption).to eq(subject.title) }
   end
@@ -34,7 +39,7 @@ describe Utusemi::Configuration do
       end
     end
 
-    describe '#utusemi(:type)' do
+    describe '#utusemi(type)' do
       subject(:product_with_utusemi) { product.utusemi(:product) }
       it { should respond_to(:title) }
       it { should respond_to(:name) }
@@ -42,18 +47,15 @@ describe Utusemi::Configuration do
       context 'has_many' do
         describe '#first' do
           # TODO: Implement the new syntax
+          #
           #   map(:sample_one) { ... }
           #   map(:sample_two) { ... }
-          #   product.utusemi(sample_one: { stocks: :sample_two }).stocks.first
-          #
-          #   # However:
-          #   #   product.utusemi(sample_one: { stocks: :sample_two }).stocks.first.product
-          #   #   #=> that is too bad!!
-          #
-          #   or
-          #
-          #   map(:product) { ... }
-          #   map(:stock) { ... }
+          #   class Stock < ActiveRecord::Base
+          #     belongs_to :product, utusemi: :sample_one
+          #   end
+          #   class Product < ActiveRecord::Base
+          #     has_many :stocks, utusemi: :sample_two
+          #   end
           #   product.utusemi.stocks.first
           #
           subject { product_with_utusemi.stocks.first }
