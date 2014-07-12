@@ -266,6 +266,14 @@ module Utusemi
           utusemi!(utusemi_values[:type], utusemi_values[:options]) if utusemi_values[:flag]
           super
         end
+
+        # 用途
+        #   cloneでは浅いコピーしか行われず@utusemi_valuesの内容が
+        #   書き変わってしまうので、これを解決するために@utusemi_valuesもdupする
+        def initialize_copy(original_obj)
+          @utusemi_values = original_obj.utusemi_values.dup
+          super
+        end
       end
 
       # 用途
