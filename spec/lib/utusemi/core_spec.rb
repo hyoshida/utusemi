@@ -50,4 +50,21 @@ describe Utusemi::Core do
       it { expect(subject.utusemi_values).to be_empty }
     end
   end
+
+  describe Utusemi::Core::InstanceMethods do
+    let(:product_first) { FactoryGirl.build(:product) }
+    let(:product_second) { FactoryGirl.build(:product) }
+
+    describe '#utusemi!' do
+      before { subject.utusemi! }
+      subject { product_first }
+      it { expect(subject.utusemi_values).not_to be_empty }
+    end
+
+    describe '#utusemi' do
+      before { subject.utusemi }
+      subject { product_second }
+      it { expect(subject.utusemi_values).to be_empty }
+    end
+  end
 end
