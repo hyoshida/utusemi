@@ -314,28 +314,16 @@ module Utusemi
       end
 
       module AssociationMethods
-        def belongs_to(name, scope = nil, options = {})
-          check_deplicated_association_warning(:belongs_to, name, scope)
-          utusemi_flag = scope.try(:delete, :utusemi)
-          scope = utusemi_association_scope(:belongs_to, name, scope) if utusemi_flag
-          super if !utusemi_flag || !method_defined?(name)
-          define_utusemi_association_reader(name, utusemi_flag => true)
+        def belongs_to(name, *args)
+          utusemi_association(:belongs_to, name, *args) { |*a| super(*a) }
         end
 
-        def has_one(name, scope = nil, options = {})
-          check_deplicated_association_warning(:has_one, name, scope)
-          utusemi_flag = scope.try(:delete, :utusemi)
-          scope = utusemi_association_scope(:has_one, name, scope) if utusemi_flag
-          super if !utusemi_flag || !method_defined?(name)
-          define_utusemi_association_reader(name, utusemi_flag => true)
+        def has_one(name, *args)
+          utusemi_association(:has_one, name, *args) { |*a| super(*a) }
         end
 
-        def has_many(name, scope = nil, options = {}, &extension)
-          check_deplicated_association_warning(:has_many, name, scope)
-          utusemi_flag = scope.try(:delete, :utusemi)
-          scope = utusemi_association_scope(:has_many, name, scope) if utusemi_flag
-          super if !utusemi_flag || !method_defined?(name)
-          define_utusemi_association_reader(name, utusemi_flag => true)
+        def has_many(name, *args)
+          utusemi_association(:has_many, name, *args) { |*a| super(*a) }
         end
 
         private
@@ -347,7 +335,20 @@ module Utusemi
           Rails.logger.warn "[Utusemi:WARNING] \"#{association_type} :#{name}\" is duplicated in #{self.name}."
         end
 
-        def utusemi_association_scope(method_name, name, scope = {})
+        def utusemi_association(association_type, name, *args)
+          if args.empty?
+            yield name, *args
+            return define_utusemi_association_reader(name)
+          end
+          scope = args.shift
+          check_deplicated_association_warning(association_type, name, scope)
+          utusemi_flag = scope.try(:delete, :utusemi)
+          scope = utusemi_association_scope(association_type, name, scope) if utusemi_flag
+          yield name, scope, *args if !utusemi_flag || !method_defined?(name)
+          define_utusemi_association_reader(name, utusemi_flag => true)
+        end
+
+        def utusemi_association_scope(method_name, name, scope)
           utusemi_map = Utusemi.config.map(name.to_s.singularize)
           default_scope = { class_name: utusemi_map.class_name }
           default_scope[:foreign_key] = utusemi_map.foreign_key if method_name == :belongs_to
