@@ -29,6 +29,7 @@ module Utusemi
     end
 
     def include_to_activerecord_base
+      # TODO: Organize name spaces
       ActiveRecord::Base.send(:include, Core::InstanceMethods)
     end
 
@@ -42,7 +43,7 @@ module Utusemi
     end
 
     def prepend_to_activerecord_eigenclass
-      activerecord_eigenclass.send(:prepend, Core::ActiveRecord::Querying)
+      activerecord_eigenclass.send(:prepend, Core::ActiveRecord::Base::ClassMethods)
       # for rails 3.x
       activerecord_eigenclass.send(:prepend, Core::ActiveRecord::RelationMethod) if Rails::VERSION::MAJOR == 3
       # for association
