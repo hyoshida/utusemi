@@ -39,7 +39,7 @@ describe Utusemi::Core do
   #   end
   #   product.utusemi.stocks.first
   #
-  describe ActiveRecord::Associations do
+  describe described_class::ActiveRecord::Associations do
     before do
       Utusemi.configure do
         map(:product) { name :title }
@@ -73,7 +73,24 @@ describe Utusemi::Core do
     end
   end
 
-  describe ActiveRecord::Base::ClassMethods do
+  describe described_class::ActiveRecord::AssociationMethods do
+    before do
+      Utusemi.configure do
+        map(:product) { name :title }
+      end
+    end
+
+    describe '::belongs_to' do
+      let(:product) { FactoryGirl.create(:product, :with_stock) }
+      let(:stock) { product.stocks.first }
+      subject { stock.utusemi.product }
+      it { should respond_to(:title) }
+      it { should respond_to(:name) }
+      it { expect(subject.title).to eq(subject.name) }
+    end
+  end
+
+  describe described_class::ActiveRecord::Base::ClassMethods do
     describe '::utusemi!' do
       before { class TemporaryModel < ActiveRecord::Base; end }
       before { subject.utusemi! }
@@ -88,7 +105,7 @@ describe Utusemi::Core do
     end
   end
 
-  describe Utusemi::Core::InstanceMethods do
+  describe described_class::InstanceMethods do
     let(:product_first) { FactoryGirl.build(:product) }
     let(:product_second) { FactoryGirl.build(:product) }
 
