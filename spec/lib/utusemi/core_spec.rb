@@ -1,4 +1,32 @@
 describe Utusemi::Core do
+  describe Utusemi::Core::Base do
+    describe '#warning_checker' do
+      let(:warning_message) { '[Utusemi:WARNING] "title" is duplicated in map(:product).' }
+
+      before do
+        Utusemi.configure do
+          map(:product) { title :title }
+        end
+      end
+
+      context 'alias is duplicated in ::utusemi' do
+        let!(:product) { FactoryGirl.create(:product, :with_stock) }
+        it 'output warning' do
+          expect(Rails.logger).to receive(:warn).with(warning_message)
+          Product.utusemi(:product)
+        end
+      end
+
+      context 'alias is duplicated in #utusemi' do
+        let(:product) { FactoryGirl.build(:product, :with_stock) }
+        it 'output warning' do
+          expect(Rails.logger).to receive(:warn).with(warning_message)
+          product.utusemi(:product)
+        end
+      end
+    end
+  end
+
   # TODO: Implement the new syntax
   #
   #   map(:sample_one) { ... }
