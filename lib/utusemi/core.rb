@@ -219,6 +219,15 @@ module Utusemi
         end
       end
 
+      module CollectionProxy
+        def scoped(*args, &block)
+          association = @association
+          utusemi_values = association.truthly_owner.utusemi_values
+          return super unless utusemi_values[:flag]
+          super.utusemi!(association.klass.model_name.singular, utusemi_values[:options])
+        end
+      end
+
       module Relation
         # 用途
         #   utusemiメソッドを利用してレコードを検索した場合は

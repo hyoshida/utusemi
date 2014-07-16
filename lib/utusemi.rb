@@ -17,6 +17,7 @@ module Utusemi
         this.prepend_to_activerecord_relation
         this.prepend_to_activerecord_eigenclass
         this.prepend_to_activerecord_associations_hasmanyassociation
+        this.prepend_to_activerecord_associations_collectionproxy
       end
     end
 
@@ -52,6 +53,10 @@ module Utusemi
 
     def prepend_to_activerecord_associations_hasmanyassociation
       ActiveRecord::Associations::HasManyAssociation.send(:prepend, Core::ActiveRecord::Associations)
+    end
+
+    def prepend_to_activerecord_associations_collectionproxy
+      ActiveRecord::Associations::CollectionProxy.send(:prepend, Core::ActiveRecord::CollectionProxy) if Rails::VERSION::MAJOR == 3
     end
 
     private
