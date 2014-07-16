@@ -27,6 +27,7 @@ module Utusemi
         utusemi_values[:flag] = obj ? true : false
         utusemi_values[:type] = obj.to_sym if obj.class.in? [Symbol, String]
         utusemi_values[:options] = options
+        warning_checker unless Rails.env.production?
         self
       end
 
@@ -49,6 +50,13 @@ module Utusemi
 
       def eigenclass
         class << self; self; end
+      end
+
+      def warning_checker
+        utusemi_column_names.each do |new_column_name, origin_column_name|
+          return if new_column_name != origin_column_name
+          Rails.logger.warn "[Utusemi:WARNING] \"#{new_column_name}\" is duplicated in map(:#{utusemi_values[:type]})."
+        end
       end
     end
 
@@ -78,12 +86,13 @@ module Utusemi
       end
 
       def utusemi_columns_mapper
-        utusemi_column_names.keys.each do |column_name|
+        utusemi_column_names.each_pair do |new_column_name, origin_column_name|
+          next if new_column_name == origin_column_name
           # alias_attributeと同じことを、対象カラム名を動的に変更して行う
-          define_getter_method(column_name)
-          define_setter_method(column_name)
-          define_predicate_method(column_name)
-          define_was_method(column_name)
+          define_getter_method(new_column_name)
+          define_setter_method(new_column_name)
+          define_predicate_method(new_column_name)
+          define_was_method(new_column_name)
         end
       end
 
@@ -148,10 +157,6 @@ module Utusemi
       module QueryMethods
         include Utusemi::Core::Base
 
-        def utusemi!(obj = nil, options = {})
-          super.tap { warning_checker unless Rails.env.production? }
-        end
-
         def build_where(opts = :chain, *rest)
           return super unless utusemi_values[:flag]
           if utusemi_values[:options][:times]
@@ -191,13 +196,6 @@ module Utusemi
             string.gsub!(/\b#{old_column_name}\b/, new_column_name.to_s)
           end
           string
-        end
-
-        def warning_checker
-          utusemi_column_names.each do |old_column_name, new_column_name|
-            return if old_column_name != new_column_name
-            Rails.logger.warn "[Utusemi:WARNING] #{old_column_name} is duplicated in Utusemi::Engine.config.#{utusemi_values[:type]}_columns."
-          end
         end
       end
 
