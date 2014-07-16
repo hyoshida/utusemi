@@ -343,16 +343,8 @@ module Utusemi
           scope = args.shift
           check_deplicated_association_warning(association_type, name, scope)
           utusemi_flag = scope.try(:delete, :utusemi)
-          scope = utusemi_association_scope(association_type, name, scope) if utusemi_flag
           yield name, scope, *args if !utusemi_flag || !method_defined?(name)
           define_utusemi_association_reader(name, utusemi_flag => true)
-        end
-
-        def utusemi_association_scope(method_name, name, scope)
-          utusemi_map = Utusemi.config.map(name.to_s.singularize)
-          default_scope = { class_name: utusemi_map.class_name }
-          default_scope[:foreign_key] = utusemi_map.foreign_key if method_name == :belongs_to
-          default_scope.merge(scope)
         end
 
         def define_utusemi_association_reader(name, options = {})
