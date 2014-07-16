@@ -34,6 +34,15 @@ describe Utusemi::Core do
       it { should respond_to(:quantity) }
       it { expect(subject.units).to eq(subject.quantity) }
     end
+
+    describe 'named scope of associations' do
+      let(:product) { FactoryGirl.create(:product, :with_stock) }
+      subject { product.utusemi(:product).stocks.unsold }
+      it { expect(subject.count).to eq(1) }
+      it { expect(subject.first).to respond_to(:units) }
+      it { expect(subject.first).to respond_to(:quantity) }
+      it { expect(subject.first.units).to eq(subject.first.quantity) }
+    end
   end
 
   describe ActiveRecord::Base::ClassMethods do
