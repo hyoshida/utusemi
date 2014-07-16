@@ -48,10 +48,6 @@ module Utusemi
         utusemi_column_names(index).invert[column_name.to_sym] || column_name
       end
 
-      def eigenclass
-        class << self; self; end
-      end
-
       def warning_checker
         utusemi_column_names.each do |new_column_name, origin_column_name|
           return if new_column_name != origin_column_name
@@ -85,6 +81,13 @@ module Utusemi
         super.tap { utusemi_columns_mapper if obj.class.in? [Symbol, String] }
       end
 
+      def changed
+        return super unless utusemi_values[:flag]
+        super + super.map { |column_name| unmapped_utusemi_column_name(column_name).to_s }
+      end
+
+      private
+
       def utusemi_columns_mapper
         utusemi_column_names.each_pair do |new_column_name, origin_column_name|
           next if new_column_name == origin_column_name
@@ -95,13 +98,6 @@ module Utusemi
           define_was_method(new_column_name)
         end
       end
-
-      def changed
-        return super unless utusemi_values[:flag]
-        super + super.map { |column_name| unmapped_utusemi_column_name(column_name).to_s }
-      end
-
-      private
 
       def define_getter_method(column_name)
         target_column_name = mapped_utusemi_column_name(column_name)
