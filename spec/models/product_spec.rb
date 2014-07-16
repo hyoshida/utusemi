@@ -1,5 +1,5 @@
 describe Product do
-  let(:product) { FactoryGirl.build(:product) }
+  let(:product) { FactoryGirl.build(:product, title: 'default title') }
 
   before do
     Utusemi.configure do
@@ -21,6 +21,31 @@ describe Product do
     subject { product.utusemi(:sample) }
     it { should respond_to(:title) }
     it { should respond_to(:name) }
+    it { expect(subject.title).to eq(subject.name) }
+
+    it '#<attribute>=' do
+      subject.name = 'new name'
+      expect(subject.title).to eq('new name')
+    end
+
+    it '#<attribute>?' do
+      expect(subject.name?).to be true
+    end
+
+    context 'persisted' do
+      let(:product) { FactoryGirl.create(:product) }
+
+      it '#<attribute>_was' do
+        name_was = subject.name
+        subject.name = 'new name'
+        expect(subject.name_was).to eq(name_was)
+      end
+
+      it '#changed' do
+        subject.name = 'new name'
+        expect(subject.changed).to include('name')
+      end
+    end
   end
 
   describe '#utusemi(type, options)' do
