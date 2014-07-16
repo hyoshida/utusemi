@@ -21,4 +21,20 @@ describe Utusemi::Configuration do
       expect(subject.where.not(description: nil).count).to eq(1)
     end
   end
+
+  describe 'any options' do
+    let!(:product) { FactoryGirl.create(:product, description1: '1', description2: '2', description3: '3') }
+
+    before do
+      Utusemi.configure do
+        map(:sample) { |options| description "description#{options[:default_description_no]}" }
+      end
+    end
+
+    subject { Product.utusemi(:sample, default_description_no: 2).first }
+
+    it 'read description2 value' do
+      expect(subject.description).to eq('2')
+    end
+  end
 end
