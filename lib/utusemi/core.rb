@@ -213,10 +213,9 @@ module Utusemi
       #
       module RelationMethod
         def relation(*args, &block)
-          return super unless current_scope
-          return super unless current_scope.utusemi_values
-          return super unless current_scope.utusemi_values[:flag]
-          super.utusemi(current_scope.utusemi_values[:type], utusemi_values[:options])
+          utusemi_values = current_scope.try(:utusemi_values) || {}
+          return super unless utusemi_values[:flag]
+          super.utusemi(utusemi_values[:type], utusemi_values[:options])
         end
       end
 
