@@ -3,13 +3,13 @@ require 'rails'
 require 'utusemi/definition'
 require 'utusemi/configuration'
 require 'utusemi/railtie'
+require 'utusemi/core'
 
 module Utusemi
   class << self
     def enable
       this = self
       ActiveSupport.on_load(:active_record) do
-        require 'utusemi/core'
         # for instance
         this.include_to_activerecord_base
         # for model and relation
