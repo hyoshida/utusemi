@@ -316,41 +316,39 @@ module Utusemi
       end
 
       module AssociationMethods
-        def belongs_to(name, *args)
-          utusemi_association(:belongs_to, name, *args) { |*a| super(*a) }
+        def belongs_to(name, *args, &block)
+          prepend_utusemi_association_reader_module(name)
+          super
         end
 
-        def has_one(name, *args)
-          utusemi_association(:has_one, name, *args) { |*a| super(*a) }
+        def has_one(name, *args, &block)
+          prepend_utusemi_association_reader_module(name)
+          super
         end
 
-        def has_many(name, *args)
-          utusemi_association(:has_many, name, *args) { |*a| super(*a) }
+        def has_many(name, *args, &block)
+          prepend_utusemi_association_reader_module(name)
+          super
         end
 
         private
 
-        def check_deplicated_association_warning(association_type, name)
-          return unless method_defined?(name)
-          return unless method_defined?("#{name}_with_utusemi")
-          Rails.logger.warn "[Utusemi:WARNING] \"#{association_type} :#{name}\" is duplicated in #{self.name}."
+        def prepend_utusemi_association_reader_module(name)
+          return if method_defined?(name)
+          prepend build_utusemi_association_reader_module(name)
         end
 
-        def utusemi_association(association_type, name, *args)
-          check_deplicated_association_warning(association_type, name)
-          yield name, *args unless method_defined?(name)
-          define_utusemi_association_reader(name)
-        end
-
-        def define_utusemi_association_reader(name)
-          return if method_defined?("#{name}_with_utusemi")
-          define_method "#{name}_with_utusemi" do |*args|
-            association = send("#{name}_without_utusemi", *args)
-            return unless association
-            return association unless association.is_a? ActiveRecord::Base
-            utusemi_for_association(name, association)
-          end
-          alias_method_chain name, :utusemi
+        def build_utusemi_association_reader_module(name)
+          wodule = Module.new
+          wodule.class_eval <<-EOS, __FILE__, __LINE__ + 1
+            def #{name}(*args, &block)
+              association = super
+              return unless association
+              return association unless association.is_a? ActiveRecord::Base
+              utusemi_for_association('#{name}'.to_sym, association)
+            end
+          EOS
+          wodule
         end
       end
     end
