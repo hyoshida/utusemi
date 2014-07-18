@@ -294,7 +294,7 @@ module Utusemi
       #
       # 使用例
       #   class Product
-      #     has_many :stocks, utusemi: true
+      #     has_many :stocks
       #     ...
       #   end
       #   stock = Product.utusemi(:product).stocks.first
@@ -330,32 +330,25 @@ module Utusemi
 
         private
 
-        def check_deplicated_association_warning(association_type, name, scope)
+        def check_deplicated_association_warning(association_type, name)
           return unless method_defined?(name)
           return unless method_defined?("#{name}_with_utusemi")
-          return if scope.try(:[], :utusemi)
           Rails.logger.warn "[Utusemi:WARNING] \"#{association_type} :#{name}\" is duplicated in #{self.name}."
         end
 
         def utusemi_association(association_type, name, *args)
-          if args.empty?
-            yield name, *args
-            return define_utusemi_association_reader(name)
-          end
-          scope = args.shift
-          check_deplicated_association_warning(association_type, name, scope)
-          utusemi_flag = scope.try(:delete, :utusemi)
-          yield name, scope, *args if !utusemi_flag || !method_defined?(name)
-          define_utusemi_association_reader(name, utusemi_flag => true)
+          check_deplicated_association_warning(association_type, name)
+          yield name, *args unless method_defined?(name)
+          define_utusemi_association_reader(name)
         end
 
-        def define_utusemi_association_reader(name, options = {})
+        def define_utusemi_association_reader(name)
           return if method_defined?("#{name}_with_utusemi")
           define_method "#{name}_with_utusemi" do |*args|
             association = send("#{name}_without_utusemi", *args)
             return unless association
             return association unless association.is_a? ActiveRecord::Base
-            utusemi_for_association(name, association, options)
+            utusemi_for_association(name, association)
           end
           alias_method_chain name, :utusemi
         end
