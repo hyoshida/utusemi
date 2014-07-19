@@ -26,6 +26,7 @@ module Utusemi
         obj = true if obj.nil?
         utusemi_values[:flag] = obj ? true : false
         utusemi_values[:type] = obj.to_sym if obj.class.in? [Symbol, String]
+        utusemi_values[:type] ||= default_utusemi_type
         utusemi_values[:options] = options
         warning_checker unless Rails.env.production?
         self
@@ -52,6 +53,21 @@ module Utusemi
         utusemi_column_names.each do |new_column_name, origin_column_name|
           return if new_column_name != origin_column_name
           Rails.logger.warn "[Utusemi:WARNING] \"#{new_column_name}\" is duplicated in map(:#{utusemi_values[:type]})."
+        end
+      end
+
+      def default_utusemi_type
+        class_for_default_utusemi_type.model_name.singular.to_sym
+      end
+
+      def class_for_default_utusemi_type
+        case self
+        when ActiveRecord::Relation
+          @klass
+        when ActiveRecord::Base
+          self.class
+        else
+          self
         end
       end
     end

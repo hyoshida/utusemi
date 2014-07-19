@@ -10,7 +10,7 @@ describe Utusemi::Core do
       end
 
       context 'alias is duplicated in ::utusemi' do
-        let!(:product) { FactoryGirl.create(:product, :with_stock) }
+        let!(:product) { FactoryGirl.create(:product) }
         it 'output warning' do
           expect(Rails.logger).to receive(:warn).with(warning_message)
           Product.utusemi(:product)
@@ -18,10 +18,39 @@ describe Utusemi::Core do
       end
 
       context 'alias is duplicated in #utusemi' do
-        let(:product) { FactoryGirl.build(:product, :with_stock) }
+        let(:product) { FactoryGirl.build(:product) }
         it 'output warning' do
           expect(Rails.logger).to receive(:warn).with(warning_message)
           product.utusemi(:product)
+        end
+      end
+    end
+
+    describe '#default_utusemi_type' do
+      before { subject.utusemi! }
+
+      context 'instance of ActiveRecord::Base' do
+        let(:product) { FactoryGirl.build(:product) }
+        subject { product }
+        it 'set default utusemi type' do
+          expect(subject.utusemi_values[:type]).to eq(:product)
+        end
+      end
+
+      context 'ActiveRecord::Base' do
+        let(:temporary_model) { class TemporaryModel < ActiveRecord::Base; self; end }
+        subject { temporary_model }
+        it 'set default utusemi type' do
+          expect(subject.utusemi_values[:type]).to eq(:temporary_model)
+        end
+      end
+
+      context 'ActiveRecord::Relation' do
+        let(:product) { FactoryGirl.build(:product, :with_stock) }
+        subject { product.stocks }
+        it 'set default utusemi type' do
+          pending 'Rails 3 is not supported' if Rails::VERSION::MAJOR == 3
+          expect(subject.utusemi_values[:type]).to eq(:stock)
         end
       end
     end
