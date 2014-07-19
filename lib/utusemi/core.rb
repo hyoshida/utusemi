@@ -213,6 +213,16 @@ module Utusemi
         end
       end
 
+      # Rails 3.x で関連モデルの named scope に対してのカラムマッピングが正常に動作するようにするためのもの
+      #
+      # 原因
+      #   product.stocks.unsold のような named scope において、stocks は utusemi_values を所持していないため
+      #   カラムマッピングが作動しない
+      #
+      # 対策
+      #   stocks は呼び出し元である product を truthly_owner として所持しているので、
+      #   これを見てカラムマッピングを実施するか否かを判別するようにした
+      #
       module CollectionProxy
         def scoped(*args, &block)
           association = @association
