@@ -309,8 +309,7 @@ module Utusemi
         def association(name)
           truthly_owner = self
           association = super
-          eigenclass = class << association; self; end
-          eigenclass.send(:define_method, :truthly_owner) { truthly_owner }
+          association.singleton_class.send(:define_method, :truthly_owner) { truthly_owner }
           association
         end
       end
