@@ -15,7 +15,9 @@ module Utusemi
     #
     module Base
       def utusemi_values
-        @utusemi_values ||= {}
+        utusemi_values = @utusemi_values || {}
+        utusemi_values = klass_utusemi_values unless utusemi_values[:flag]
+        utusemi_values
       end
 
       def utusemi(obj = nil, options = {})
@@ -24,10 +26,11 @@ module Utusemi
 
       def utusemi!(obj = nil, options = {})
         obj = true if obj.nil?
-        utusemi_values[:flag] = obj ? true : false
-        utusemi_values[:type] = obj.to_sym if obj.class.in? [Symbol, String]
-        utusemi_values[:type] ||= default_utusemi_type
-        utusemi_values[:options] = options
+        @utusemi_values ||= {}
+        @utusemi_values[:flag] = obj ? true : false
+        @utusemi_values[:type] = obj.to_sym if obj.class.in? [Symbol, String]
+        @utusemi_values[:type] ||= default_utusemi_type
+        @utusemi_values[:options] = options
         warning_checker unless Rails.env.production?
         self
       end
@@ -69,6 +72,13 @@ module Utusemi
         else
           self
         end
+      end
+
+      def klass_utusemi_values
+        return {} unless @klass
+        utusemi_values = @klass.instance_variable_get(:@utusemi_values) || {}
+        return {} unless utusemi_values[:flag]
+        utusemi_values
       end
     end
 
@@ -265,8 +275,6 @@ module Utusemi
         #   #=> true (= products.title)
         #
         def to_a
-          utusemi_values = self.utusemi_values
-          utusemi_values = @klass.utusemi_values unless utusemi_values[:flag]
           return super unless utusemi_values[:flag]
           super.each { |record| record.utusemi!(utusemi_values[:type], utusemi_values[:options]) }
         end
