@@ -121,10 +121,15 @@ describe Utusemi::Core do
 
   describe described_class::ActiveRecord::Base::ClassMethods do
     describe '::utusemi!' do
-      before { class TemporaryModel < ActiveRecord::Base; end }
       before { subject.utusemi! }
-      subject { TemporaryModel }
+      after { subject.utusemi_values[:flag] = false }
+      subject { Product }
+
       it { expect(subject.utusemi_values).not_to be_empty }
+
+      it 'Inherit utusemi values to instance' do
+        expect(subject.where(name: nil).utusemi_values).not_to be_empty
+      end
     end
 
     describe '::utusemi' do
