@@ -338,13 +338,13 @@ module Utusemi
         def scope(*args)
           utusemi_values = truthly_owner.utusemi_values
           return super unless utusemi_values[:flag]
-          super.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options])
+          super.utusemi!(@reflection.klass.model_name.singular, utusemi_values[:options])
         end
 
         def load_target(*args)
           utusemi_values = truthly_owner.utusemi_values
           return super unless utusemi_values[:flag]
-          super.each { |record| record.utusemi!(@reflection.name.to_s.singularize, utusemi_values[:options]) }
+          super.each { |record| record.utusemi!(@reflection.klass.model_name.singular, utusemi_values[:options]) }
         end
       end
 

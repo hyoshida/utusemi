@@ -155,4 +155,18 @@ describe Utusemi::Core do
       it { expect(subject.utusemi_values).to be_empty }
     end
   end
+
+  describe 'Associations' do
+    before do
+      Utusemi.configure do
+        map(:stock) { quantity :units }
+      end
+    end
+
+    let(:product) { FactoryGirl.create(:product, :with_stock) }
+
+    it 'Collect type name for Associations' do
+      expect(product.utusemi(:product).dummy_stocks.unsold.count).to eq(1)
+    end
+  end
 end
