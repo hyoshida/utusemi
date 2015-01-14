@@ -118,31 +118,27 @@ module Utusemi
         utusemi_column_names.each_pair do |new_column_name, origin_column_name|
           next if new_column_name == origin_column_name
           # alias_attributeと同じことを、対象カラム名を動的に変更して行う
-          define_getter_method(new_column_name)
-          define_setter_method(new_column_name)
-          define_predicate_method(new_column_name)
-          define_was_method(new_column_name)
+          define_getter_method(new_column_name, origin_column_name)
+          define_setter_method(new_column_name, origin_column_name)
+          define_predicate_method(new_column_name, origin_column_name)
+          define_was_method(new_column_name, origin_column_name)
         end
       end
 
-      def define_getter_method(column_name)
-        target_column_name = mapped_utusemi_column_name(column_name)
-        define_singleton_method(column_name) { send target_column_name }
+      def define_getter_method(column_name, origin_column_name)
+        define_singleton_method(column_name) { send origin_column_name }
       end
 
-      def define_setter_method(column_name)
-        target_column_name = mapped_utusemi_column_name(column_name)
-        define_singleton_method("#{column_name}=") { |value| send "#{target_column_name}=", value }
+      def define_setter_method(column_name, origin_column_name)
+        define_singleton_method("#{column_name}=") { |value| send "#{origin_column_name}=", value }
       end
 
-      def define_predicate_method(column_name)
-        target_column_name = mapped_utusemi_column_name(column_name)
-        define_singleton_method("#{column_name}?") { send "#{target_column_name}?" }
+      def define_predicate_method(column_name, origin_column_name)
+        define_singleton_method("#{column_name}?") { send "#{origin_column_name}?" }
       end
 
-      def define_was_method(column_name)
-        target_column_name = mapped_utusemi_column_name(column_name)
-        define_singleton_method("#{column_name}_was") { send "#{target_column_name}_was" }
+      def define_was_method(column_name, origin_column_name)
+        define_singleton_method("#{column_name}_was") { send "#{origin_column_name}_was" }
       end
 
       def utusemi_for_association(name, association, options = {})
